@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { User } from './entities/User';
+import { Role } from './entities/Role'; // Import Role entity
 import { config } from 'dotenv';
 
 // Load environment variables from the .env file
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,      // Database name (use environment variable for flexibility)
   synchronize: true,                  // Automatically sync entities (like ddl-auto: update)
   logging: true,                      // Enable SQL query logging (similar to show-sql)
-  entities: [User],                   // Add your entities here
+  entities: [User, Role],             // Add both entities (User and Role)
   migrations: [],                     // Optionally add migrations if needed
   subscribers: [],                    // Optionally add subscribers if needed
   // Define additional options if needed based on your project setup
