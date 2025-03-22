@@ -1,5 +1,6 @@
 import { AppDataSource } from "../db";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from "../entities/User";
 import { Role } from "../entities/Role";
 
@@ -47,4 +48,43 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
   
+  async loginUser(username: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { username } });
+
+    if (!user) {
+      throw new Error("Invalid credentials!");
+    }
+
+    if (!user.status) {
+      throw new Error("Account is inactive!");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials!");
+    }
+
+    const token = jwt.sign(
+      { role: user.role, userId: user.id },
+      process.env.JWT_SECRET || "secret",
+      { expiresIn: "1h" }
+    );
+
+    return {
+      message: "Authentication successful!",
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        emailAddress: user.emailAddress,
+        phoneNumber: user.phoneNumber,
+        location: user.location,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profilePicture: user.profilePicture,
+        status: user.status,
+      },
+    };
+  }
 }
