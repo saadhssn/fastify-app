@@ -8,8 +8,22 @@ export const userController = {
   },
 
   createUser: async (request: FastifyRequest, reply: FastifyReply) => {
-    const { name, email } = request.body as { name: string, email: string };
-    const newUser = await userService.createUser(name, email);
+    const { username, name, firstName, lastName, emailAddress, phoneNumber, password, boardCount, role, location, profilePicture } = request.body as {
+      username: string,
+      name: string,
+      firstName: string,
+      lastName: string,
+      emailAddress: string,
+      phoneNumber: string,
+      password: string,
+      boardCount: string,
+      role: string,
+      location?: string,
+      profilePicture?: string
+    };
+
+    const newUser = await userService.createUser(username, name, firstName, lastName, emailAddress, phoneNumber, password, boardCount, role, location, profilePicture);
+    
     return reply.status(201).send(newUser);
   }
 };
