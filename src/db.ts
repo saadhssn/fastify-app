@@ -1,23 +1,23 @@
-import { DataSource } from 'typeorm';
-import { User } from './entities/User';
-import { Role } from './entities/Role'; // Import Role entity
-import { config } from 'dotenv';
+import "reflect-metadata";
+import { DataSource } from "typeorm";
+import { User } from "./entities/User";
+import { Role } from "./entities/Role";
+import { config } from "dotenv";
 
-// Load environment variables from the .env file
 config();
 
-// Create a new TypeORM DataSource to connect to PostgreSQL
 export const AppDataSource = new DataSource({
-  type: 'postgres',                   // PostgreSQL database
-  host: 'localhost',                  // Database host (localhost)
-  port: 5332,                         // Port (matching your Spring Boot config)
-  username: process.env.DB_USERNAME,  // Username (use environment variable for flexibility)
-  password: process.env.DB_PASSWORD,  // Password (use environment variable for flexibility)
-  database: process.env.DB_NAME,      // Database name (use environment variable for flexibility)
-  synchronize: true,                  // Automatically sync entities (like ddl-auto: update)
-  logging: true,                      // Enable SQL query logging (similar to show-sql)
-  entities: [User, Role],             // Add both entities (User and Role)
-  migrations: [],                     // Optionally add migrations if needed
-  subscribers: [],                    // Optionally add subscribers if needed
-  // Define additional options if needed based on your project setup
+  type: "postgres",
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 5432,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  synchronize: true,
+  logging: true,
+  entities: [User, Role],
 });
+
+AppDataSource.initialize()
+  .then(() => console.log("Database connected successfully"))
+  .catch((error) => console.error("Database connection error:", error));

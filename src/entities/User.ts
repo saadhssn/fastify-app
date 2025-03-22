@@ -27,9 +27,6 @@ export class User {
   password: string;
 
   @Column()
-  boardCount: string;
-
-  @Column()
   role: string;
 
   @Column({ nullable: true, type: 'varchar' }) // Explicitly allowing NULL
