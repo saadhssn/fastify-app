@@ -90,4 +90,14 @@ export const userController = {
       reply.status(400).send({ error: error instanceof Error ? error.message : "An unknown error occurred" });
     }
   },
+
+  async login(req: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { username, password } = req.body as { username: string; password: string };
+      const response = await userService.loginUser(username, password);
+      reply.status(200).send(response);
+    } catch (error) {
+      reply.status(400).send({ error: error instanceof Error ? error.message : "An error occurred" });
+    }
+  },
 };
