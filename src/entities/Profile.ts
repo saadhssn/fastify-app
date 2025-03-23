@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity({ name: 'users' })
-export class User {
+@Entity({ name: 'profiles' })
+export class Profile {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,9 +22,6 @@ export class User {
 
   @Column({ unique: true })
   phoneNumber: string;
-
-  @Column()
-  password: string;
 
   @Column()
   role: string;

@@ -30,7 +30,6 @@ export const userController = {
 
       const newUser = await userService.signUpUser(
         username,
-        name,
         firstName,
         lastName,
         email,
@@ -51,7 +50,6 @@ export const userController = {
     try {
       const {
         username,
-        name,
         firstName,
         lastName,
         email,
@@ -74,7 +72,6 @@ export const userController = {
 
       const newUser = await userService.signUpUser(
         username,
-        name,
         firstName,
         lastName,
         email,

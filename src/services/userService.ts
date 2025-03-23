@@ -2,50 +2,72 @@ import { AppDataSource } from "../db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../entities/User";
-import { Role } from "../entities/Role";
+import { Profile } from "../entities/Profile";
+import { EntityManager } from "typeorm";
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
-  private roleRepository = AppDataSource.getRepository(Role);
+  private profileRepository = AppDataSource.getRepository(Profile);
 
   async signUpUser(
     username: string,
-    name: string,
     firstName: string,
     lastName: string,
     email: string,
     phoneNumber: string,
     password: string,
-    roleName: string,
+    role: string,
     location?: string,
     profilePicture?: string
   ) {
-    const existingUser = await this.userRepository.findOne({ where: { emailAddress: email } });
-    if (existingUser) {
-      throw new Error("User already exists");
-    }
-  
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // const role = await this.roleRepository.findOne({ where: { name: roleName } });
-  
-    // if (!role) {
-    //   throw new Error(`Role '${roleName}' not found`);
-    // }
-  
-    const newUser = this.userRepository.create({
-      username,
-      name,
-      firstName,
-      lastName,
-      emailAddress: email,
-      phoneNumber,
-      password: hashedPassword,
-      role: roleName, // Store only the role name as a string
-      location: location || null,
-      profilePicture: profilePicture || null,
+    return await AppDataSource.transaction(async (transactionalEntityManager: EntityManager) => {
+      // Check if user already exists
+      const existingUser = await transactionalEntityManager.findOne(User, { where: { emailAddress: email } });
+      if (existingUser) {
+        throw new Error("User already exists");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const name = `${firstName} ${lastName}`;
+
+      // Create and save User
+      const newUser = transactionalEntityManager.create(User, {
+        username,
+        name,
+        firstName,
+        lastName,
+        emailAddress: email,
+        phoneNumber,
+        password: hashedPassword,
+        role: role.toLowerCase(),
+        location: location || null,
+        profilePicture: profilePicture || null,
+      });
+
+      await transactionalEntityManager.save(User, newUser);
+
+      // Create and save Profile (using same ID as User)
+      const newProfile = transactionalEntityManager.create(Profile, {
+        id: newUser.id, // Ensuring profile ID matches user ID
+        username,
+        name,
+        firstName,
+        lastName,
+        emailAddress: email,
+        phoneNumber,
+        role: role.toLowerCase(),
+        location: location || null,
+        profilePicture: profilePicture || null,
+      });
+
+      await transactionalEntityManager.save(Profile, newProfile);
+
+      return {
+        message: "User and Profile created successfully",
+        user: newUser,
+        profile: newProfile,
+      };
     });
-  
-    return await this.userRepository.save(newUser);
   }
   
   async loginUser(username: string, password: string) {
