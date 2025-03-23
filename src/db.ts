@@ -22,3 +22,6 @@ export const AppDataSource = new DataSource({
 AppDataSource.initialize()
   .then(() => console.log("Database connected successfully"))
   .catch((error) => console.error("Database connection error:", error));
+
+
+// patrgRUEcaDIJSLUj.74d793c30596cbafc149b006bd754ff46e294f366b3998f1a3c2ade7aa39c5ac
