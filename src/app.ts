@@ -3,7 +3,78 @@ import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
 import { userRoutes } from './routes/userRoutes';
 import { AppDataSource } from './db';
-import path from 'path';
+import dotenv from 'dotenv';
+import Airtable from 'airtable';
+import { User } from './entities/User';
+import { Profile } from './entities/Profile';
+
+// Load environment variables
+dotenv.config();
+
+const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const USERS_TABLE = 'users';
+const PROFILES_TABLE = 'profiles';
+
+if (!AIRTABLE_ACCESS_TOKEN || !AIRTABLE_BASE_ID) {
+  throw new Error('Missing Airtable credentials. Please set AIRTABLE_ACCESS_TOKEN and AIRTABLE_BASE_ID in your .env file.');
+}
+
+const base = new Airtable({ apiKey: AIRTABLE_ACCESS_TOKEN }).base(AIRTABLE_BASE_ID);
+
+const syncUsersToAirtable = async () => {
+  const userRepository = AppDataSource.getRepository(User);
+  const users = await userRepository.find();
+
+  for (const user of users) {
+    await base(USERS_TABLE).create([
+      {
+        fields: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          emailAddress: user.emailAddress,
+          phoneNumber: user.phoneNumber,
+          role: user.role,
+          location: user.location || '',
+          profilePicture: user.profilePicture || '',
+          status: user.status,
+        },
+      },
+    ]);
+  }
+
+  console.log('Users synced to Airtable');
+};
+
+const syncProfilesToAirtable = async () => {
+  const profileRepository = AppDataSource.getRepository(Profile);
+  const profiles = await profileRepository.find();
+
+  for (const profile of profiles) {
+    await base(PROFILES_TABLE).create([
+      {
+        fields: {
+          id: profile.id,
+          username: profile.username,
+          name: profile.name,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          emailAddress: profile.emailAddress,
+          phoneNumber: profile.phoneNumber,
+          role: profile.role,
+          location: profile.location || '',
+          profilePicture: profile.profilePicture || '',
+          status: profile.status,
+        },
+      },
+    ]);
+  }
+
+  console.log('Profiles synced to Airtable');
+};
 
 // Initialize Fastify instance
 const fastify = Fastify({
@@ -25,10 +96,10 @@ fastify.register(fastifySwagger, {
 
 // Register Swagger UI
 fastify.register(fastifySwaggerUI, {
-  routePrefix: '/documentation', // Swagger UI route
+  routePrefix: '/documentation',
   uiConfig: {
-    docExpansion: 'none',  // Optional: controls the expansion of the docs
-    deepLinking: false,    // Optional: enables/disables deep linking
+    docExpansion: 'none',
+    deepLinking: false,
   },
   uiHooks: {
     onRequest: (req, res) => {},
@@ -45,6 +116,11 @@ async function startServer() {
     await AppDataSource.initialize();
     console.log('Data Source has been initialized!');
 
+    // Run Airtable Sync
+    await syncUsersToAirtable();
+    await syncProfilesToAirtable();
+    console.log('Sync completed successfully!');
+
     // Start the server
     fastify.listen({ port: 3000, host: 'localhost' }, (err, address) => {
       if (err) {
@@ -53,7 +129,6 @@ async function startServer() {
       }
       console.log(`Server listening at ${address}`);
     });
-    
   } catch (error) {
     console.error('Error during startup:', error);
     process.exit(1);
