@@ -34,6 +34,22 @@ export const getSneakerBySlug = async (sneakerSlug: string) => {
   }
 };
 
+export const getDesignCategories = async () => {
+    try {
+      const records = await base('Designs').select({ fields: ['Name'] }).all();
+  
+      const categories = records.map(record => ({
+        id: record.id,
+        name: record.fields.Name,
+      }));
+  
+      return categories;
+    } catch (error) {
+      console.error('Error fetching design categories:', error);
+      throw new Error('Failed to fetch design categories');
+    }
+  };
+  
 
 
 
