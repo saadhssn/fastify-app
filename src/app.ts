@@ -4,6 +4,7 @@ import fastifySwaggerUI from '@fastify/swagger-ui';
 import { userRoutes } from './routes/userRoutes';
 import { sneakerRoutes } from './routes/sneakerRoutes';
 import { designRoutes } from './routes/designRoutes';
+import { productRoutes } from './routes/productRoutes';
 import { AppDataSource } from './db';
 import dotenv from 'dotenv';
 // import { syncUsersToAirtable, syncProfilesToAirtable, fetchBaseSchema } from './services/airtableSync';
@@ -67,7 +68,8 @@ async function startServer() {
     fastify.register(userRoutes);
     fastify.register(sneakerRoutes);
     fastify.register(designRoutes); 
-
+    fastify.register(productRoutes);
+    
     // ** After all routes are registered, initialize Swagger **
     await fastify.ready();
     console.log('Swagger documentation available at: http://localhost:3000/documentation');

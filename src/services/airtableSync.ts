@@ -6,6 +6,7 @@ dotenv.config();
 const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const SNEAKERS_TABLE = 'Sneakers';
+const PRODUCTS_TABLE = 'Products';
 
 if (!AIRTABLE_ACCESS_TOKEN || !AIRTABLE_BASE_ID) {
   throw new Error('Missing Airtable credentials. Please set AIRTABLE_ACCESS_TOKEN and AIRTABLE_BASE_ID in your .env file.');
@@ -50,7 +51,28 @@ export const getDesignCategories = async () => {
     }
   };
   
+// Function to fetch all product types
+export const getProductTypes = async () => {
+    try {
+      const records = await base(PRODUCTS_TABLE)
+        .select({ fields: ['Name', 'Regular Price', 'Sale Price'] }) // Include Regular Price and Sale Price
+        .all();
+  
+      const productTypes = records.map(record => ({
+        id: record.id,
+        name: record.fields['Name'],
+        regularPrice: record.fields['Regular Price'] || null, // Ensure no undefined values
+        salePrice: record.fields['Sale Price'] || null,
 
+      }));
+  
+      return productTypes;
+    } catch (error) {
+      console.error('Error fetching product types:', error);
+      throw new Error('Failed to fetch product types');
+    }
+  };
+  
 
 
 
