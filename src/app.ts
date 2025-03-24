@@ -1,3 +1,7 @@
+// This is the main Fastify server file that initializes and configures the Fastify server,
+// integrates Swagger for API documentation, connects to the PostgreSQL database using TypeORM, 
+// and registers routes for user, sneaker, design, and product functionalities.
+
 import Fastify from 'fastify';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
@@ -8,7 +12,7 @@ import { productRoutes } from './routes/productRoutes';
 import { AppDataSource } from './db';
 import dotenv from 'dotenv';
 // import { syncUsersToAirtable, syncProfilesToAirtable, fetchBaseSchema } from './services/airtableSync';
-import {   } from './services/airtableSync';
+import { } from './services/airtableSync';
 
 dotenv.config();
 
@@ -40,9 +44,9 @@ fastify.register(fastifySwagger, {
   },
 });
 
+// ** Register Swagger UI for API Documentation UI **
 fastify.register(fastifySwaggerUI, {
   routePrefix: '/documentation',
-  //exposeRoute: true,
   staticCSP: true,
   transformStaticCSP: (header) => header,
   uiConfig: {
@@ -51,9 +55,10 @@ fastify.register(fastifySwaggerUI, {
   },
 });
 
+// ** Start the Fastify Server, Connect to Database, and Register Routes **
 async function startServer() {
   try {
-
+    // Initialize the database connection
     await AppDataSource.initialize();
     console.log('Database connected successfully.');
 
@@ -64,16 +69,17 @@ async function startServer() {
     // await syncUsersToAirtable();
     // await syncProfilesToAirtable();
 
-    // ** Register routes before ready() **
+    // ** Register routes before the server is ready **
     fastify.register(userRoutes);
     fastify.register(sneakerRoutes);
-    fastify.register(designRoutes); 
+    fastify.register(designRoutes);
     fastify.register(productRoutes);
     
     // ** After all routes are registered, initialize Swagger **
     await fastify.ready();
     console.log('Swagger documentation available at: http://localhost:3000/documentation');
 
+    // Start the Fastify server
     fastify.listen({ port: 3000, host: 'localhost' }, (err, address) => {
       if (err) {
         console.error(err);
@@ -87,6 +93,7 @@ async function startServer() {
   }
 }
 
+// Call the function to start the server
 startServer();
 
 export default fastify;
