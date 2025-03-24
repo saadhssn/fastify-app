@@ -12,22 +12,42 @@ const fastify = Fastify({
   logger: true,
 });
 
-// Register Swagger
+// ** Register Swagger for API Documentation **
 fastify.register(fastifySwagger, {
-  swagger: {
+  openapi: {
     info: {
       title: 'Fastify PostgreSQL API',
+      description: 'A Fastify API integrated with PostgreSQL and TypeORM',
       version: '1.0.0',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+        },
+      },
     },
   },
 });
+
 fastify.register(fastifySwaggerUI, {
   routePrefix: '/documentation',
+  staticCSP: true,
+  transformStaticCSP: (header) => header,
+  uiConfig: {
+    docExpansion: 'list',
+    deepLinking: false,
+  },
 });
 
 async function startServer() {
   try {
-    fastify.register(userRoutes);
 
     await AppDataSource.initialize();
     console.log('Database connected successfully.');
@@ -38,6 +58,13 @@ async function startServer() {
     // Sync Data to Airtable
     await syncUsersToAirtable();
     await syncProfilesToAirtable();
+
+    // ** Register routes before ready() **
+    fastify.register(userRoutes);
+
+    // ** After all routes are registered, initialize Swagger **
+    await fastify.ready();
+    console.log('Swagger documentation available at: http://localhost:3000/documentation');
 
     fastify.listen({ port: 3000, host: 'localhost' }, (err, address) => {
       if (err) {
