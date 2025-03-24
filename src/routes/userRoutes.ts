@@ -1,3 +1,5 @@
+// User routes for handling user sign-ups (admin and regular), and login functionality with Swagger documentation.
+
 import { FastifyInstance } from "fastify";
 import { userController } from "../controllers/userController";
 

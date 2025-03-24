@@ -1,17 +1,19 @@
+// This is the TypeScript configuration file for the project. It defines various options to control how TypeScript compiles the code, such as module resolution, output directory, strict type checking, and support for decorators.
+
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    "target": "ES6", // Set the target ECMAScript version for the output (ES6 here for modern JavaScript features)
+    "module": "commonjs", // Specifies the module code generation method (CommonJS used for Node.js projects)
+    "moduleResolution": "node", // Specifies how TypeScript looks for modules, 'node' is common for Node.js environments
+    "outDir": "./dist", // Output directory for compiled JavaScript files (after transpiling TypeScript)
+    "esModuleInterop": true, // Enables compatibility between CommonJS and ES Modules (useful for importing non-ESM modules)
+    "skipLibCheck": true, // Skips type checking of declaration files to speed up the compilation process
+    "strict": true, // Enables all strict type-checking options for better type safety
+    "resolveJsonModule": true, // Allows importing of JSON files as modules
+    "experimentalDecorators": true, // Enables support for decorators (used in frameworks like NestJS, TypeORM, etc.)
+    "emitDecoratorMetadata": true, // Emits metadata required for decorators (usually for libraries like TypeORM)
+    "strictPropertyInitialization": false // Disables strict property initialization checks (useful if you need to initialize properties later)
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"], // Specifies which files should be included in the compilation (all TypeScript files in 'src')
+  "exclude": ["node_modules"] // Excludes the 'node_modules' folder from the compilation process
 }

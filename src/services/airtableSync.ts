@@ -1,3 +1,6 @@
+// Airtable service functions to interact with the 'Sneakers', 'Designs', and 'Products' tables in Airtable.
+// Functions include fetching sneaker by slug, getting design categories, and fetching product types.
+
 import Airtable from 'airtable';
 import dotenv from 'dotenv';
 
@@ -35,43 +38,44 @@ export const getSneakerBySlug = async (sneakerSlug: string) => {
   }
 };
 
+// Function to fetch all design categories
 export const getDesignCategories = async () => {
-    try {
-      const records = await base('Designs').select({ fields: ['Name'] }).all();
-  
-      const categories = records.map(record => ({
-        id: record.id,
-        name: record.fields.Name,
-      }));
-  
-      return categories;
-    } catch (error) {
-      console.error('Error fetching design categories:', error);
-      throw new Error('Failed to fetch design categories');
-    }
-  };
-  
+  try {
+    const records = await base('Designs').select({ fields: ['Name'] }).all();
+
+    const categories = records.map(record => ({
+      id: record.id,
+      name: record.fields.Name,
+    }));
+
+    return categories;
+  } catch (error) {
+    console.error('Error fetching design categories:', error);
+    throw new Error('Failed to fetch design categories');
+  }
+};
+
 // Function to fetch all product types
 export const getProductTypes = async () => {
-    try {
-      const records = await base(PRODUCTS_TABLE)
-        .select({ fields: ['Name', 'Regular Price', 'Sale Price'] }) // Include Regular Price and Sale Price
-        .all();
-  
-      const productTypes = records.map(record => ({
-        id: record.id,
-        name: record.fields['Name'],
-        regularPrice: record.fields['Regular Price'] || null, // Ensure no undefined values
-        salePrice: record.fields['Sale Price'] || null,
+  try {
+    const records = await base(PRODUCTS_TABLE)
+      .select({ fields: ['Name', 'Regular Price', 'Sale Price'] }) // Include Regular Price and Sale Price
+      .all();
 
-      }));
-  
-      return productTypes;
-    } catch (error) {
-      console.error('Error fetching product types:', error);
-      throw new Error('Failed to fetch product types');
-    }
-  };
+    const productTypes = records.map(record => ({
+      id: record.id,
+      name: record.fields['Name'],
+      regularPrice: record.fields['Regular Price'] || null, // Ensure no undefined values
+      salePrice: record.fields['Sale Price'] || null,
+    }));
+
+    return productTypes;
+  } catch (error) {
+    console.error('Error fetching product types:', error);
+    throw new Error('Failed to fetch product types');
+  }
+};
+
   
 
 
