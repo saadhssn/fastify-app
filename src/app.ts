@@ -2,9 +2,11 @@ import Fastify from 'fastify';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
 import { userRoutes } from './routes/userRoutes';
+import { sneakerRoutes } from './routes/sneakerRoutes';
 import { AppDataSource } from './db';
 import dotenv from 'dotenv';
-import { syncUsersToAirtable, syncProfilesToAirtable, fetchBaseSchema } from './services/airtableSync';
+// import { syncUsersToAirtable, syncProfilesToAirtable, fetchBaseSchema } from './services/airtableSync';
+import {   } from './services/airtableSync';
 
 dotenv.config();
 
@@ -38,6 +40,7 @@ fastify.register(fastifySwagger, {
 
 fastify.register(fastifySwaggerUI, {
   routePrefix: '/documentation',
+  //exposeRoute: true,
   staticCSP: true,
   transformStaticCSP: (header) => header,
   uiConfig: {
@@ -53,14 +56,15 @@ async function startServer() {
     console.log('Database connected successfully.');
 
     // Fetch Airtable schema to verify access
-    await fetchBaseSchema();
+    // await fetchBaseSchema();
 
     // Sync Data to Airtable
-    await syncUsersToAirtable();
-    await syncProfilesToAirtable();
+    // await syncUsersToAirtable();
+    // await syncProfilesToAirtable();
 
     // ** Register routes before ready() **
     fastify.register(userRoutes);
+    fastify.register(sneakerRoutes);
 
     // ** After all routes are registered, initialize Swagger **
     await fastify.ready();
