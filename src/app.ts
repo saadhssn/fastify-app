@@ -9,6 +9,7 @@ import { userRoutes } from './routes/userRoutes';
 import { sneakerRoutes } from './routes/sneakerRoutes';
 import { designRoutes } from './routes/designRoutes';
 import { productRoutes } from './routes/productRoutes';
+import { airtableRoutes } from './routes/airtableRoutes';
 import { AppDataSource } from './db';
 import dotenv from 'dotenv';
 // import { syncUsersToAirtable, syncProfilesToAirtable, fetchBaseSchema } from './services/airtableSync';
@@ -74,6 +75,7 @@ async function startServer() {
     fastify.register(sneakerRoutes);
     fastify.register(designRoutes);
     fastify.register(productRoutes);
+    fastify.register(airtableRoutes);
     
     // ** After all routes are registered, initialize Swagger **
     await fastify.ready();

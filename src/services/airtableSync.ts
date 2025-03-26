@@ -2,25 +2,66 @@
 // Functions include fetching sneaker by slug, getting design categories, and fetching product types.
 
 import Airtable from 'airtable';
+import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
-const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const airtableBase = new Airtable({ apiKey: process.env.AIRTABLE_ACCESS_TOKEN }).base(process.env.AIRTABLE_BASE_ID!);
+const tableNames = process.env.AIRTABLE_TABLE_NAMES!.split(',');
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!);
+
 const SNEAKERS_TABLE = 'Sneakers';
+const DESIGNS_TABLE = 'Designs';
 const PRODUCTS_TABLE = 'Products';
 
-if (!AIRTABLE_ACCESS_TOKEN || !AIRTABLE_BASE_ID) {
-  throw new Error('Missing Airtable credentials. Please set AIRTABLE_ACCESS_TOKEN and AIRTABLE_BASE_ID in your .env file.');
-}
+export const fetchAirtableData = async (tableName: string) => {
+  try {
+    const records = await airtableBase(tableName).select().all();
+    return records.map(record => ({ id: record.id, ...record.fields }));
+  } catch (error) {
+    console.error(`Error fetching data from Airtable table ${tableName}:`, error);
+    return [];
+  }
+};
 
-const base = new Airtable({ apiKey: AIRTABLE_ACCESS_TOKEN }).base(AIRTABLE_BASE_ID);
+export const syncAirtableToSupabase = async () => {
+  try {
+    console.log("Starting sync process...");
+
+    for (const tableName of tableNames) {
+      console.log(`Fetching data from Airtable table: ${tableName}`);
+      const airtableData = await fetchAirtableData(tableName);
+
+      console.log(`Fetched ${airtableData.length} records from ${tableName}`);
+
+      for (const item of airtableData) {
+        const { id, ...fields } = item;
+        console.log(`Syncing record ${id} to Supabase table: ${tableName}`);
+
+        const { error } = await supabase
+          .from(tableName)
+          .upsert([{ id, ...fields }], { onConflict: 'id' });
+
+        if (error) {
+          console.error(`Error inserting record ${id} into ${tableName}:`, error);
+        } else {
+          console.log(`Successfully inserted record ${id} into ${tableName}`);
+        }
+      }
+    }
+
+    console.log('All data successfully synced from Airtable to Supabase');
+  } catch (error) {
+    console.error('Error syncing data to Supabase:', error);
+  }
+};
+
 
 // Function to fetch a sneaker by its slug
 export const getSneakerBySlug = async (sneakerSlug: string) => {
   try {
-    const records = await base(SNEAKERS_TABLE)
+    const records = await airtableBase(SNEAKERS_TABLE)
       .select({
         filterByFormula: `{MK Shopify Handle} = '${sneakerSlug}'`,
         maxRecords: 1,
@@ -41,14 +82,8 @@ export const getSneakerBySlug = async (sneakerSlug: string) => {
 // Function to fetch all design categories
 export const getDesignCategories = async () => {
   try {
-    const records = await base('Designs').select({ fields: ['Name'] }).all();
-
-    const categories = records.map(record => ({
-      id: record.id,
-      name: record.fields.Name,
-    }));
-
-    return categories;
+    const records = await airtableBase(DESIGNS_TABLE).select({ fields: ['Name'] }).all();
+    return records.map(record => ({ id: record.id, name: record.fields.Name }));
   } catch (error) {
     console.error('Error fetching design categories:', error);
     throw new Error('Failed to fetch design categories');
@@ -58,27 +93,106 @@ export const getDesignCategories = async () => {
 // Function to fetch all product types
 export const getProductTypes = async () => {
   try {
-    const records = await base(PRODUCTS_TABLE)
-      .select({ fields: ['Name', 'Regular Price', 'Sale Price'] }) // Include Regular Price and Sale Price
+    const records = await airtableBase(PRODUCTS_TABLE)
+      .select({ fields: ['Name', 'Regular Price', 'Sale Price'] })
       .all();
 
-    const productTypes = records.map(record => ({
+    return records.map(record => ({
       id: record.id,
       name: record.fields['Name'],
-      regularPrice: record.fields['Regular Price'] || null, // Ensure no undefined values
+      regularPrice: record.fields['Regular Price'] || null,
       salePrice: record.fields['Sale Price'] || null,
     }));
-
-    return productTypes;
   } catch (error) {
     console.error('Error fetching product types:', error);
     throw new Error('Failed to fetch product types');
   }
 };
 
+
+// CORRECTED previous file
+
+// // Airtable service functions to interact with the 'Sneakers', 'Designs', and 'Products' tables in Airtable.
+// // Functions include fetching sneaker by slug, getting design categories, and fetching product types.
+
+// import Airtable from 'airtable';
+// import dotenv from 'dotenv';
+
+// dotenv.config();
+
+// const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
+// const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+// const SNEAKERS_TABLE = 'Sneakers';
+// const PRODUCTS_TABLE = 'Products';
+
+// if (!AIRTABLE_ACCESS_TOKEN || !AIRTABLE_BASE_ID) {
+//   throw new Error('Missing Airtable credentials. Please set AIRTABLE_ACCESS_TOKEN and AIRTABLE_BASE_ID in your .env file.');
+// }
+
+// const base = new Airtable({ apiKey: AIRTABLE_ACCESS_TOKEN }).base(AIRTABLE_BASE_ID);
+
+// // Function to fetch a sneaker by its slug
+// export const getSneakerBySlug = async (sneakerSlug: string) => {
+//   try {
+//     const records = await base(SNEAKERS_TABLE)
+//       .select({
+//         filterByFormula: `{MK Shopify Handle} = '${sneakerSlug}'`,
+//         maxRecords: 1,
+//       })
+//       .firstPage();
+
+//     if (records.length === 0) {
+//       return null;
+//     }
+
+//     return records[0].fields;
+//   } catch (error) {
+//     console.error('Error fetching sneaker:', error);
+//     throw new Error('Failed to fetch sneaker');
+//   }
+// };
+
+// // Function to fetch all design categories
+// export const getDesignCategories = async () => {
+//   try {
+//     const records = await base('Designs').select({ fields: ['Name'] }).all();
+
+//     const categories = records.map(record => ({
+//       id: record.id,
+//       name: record.fields.Name,
+//     }));
+
+//     return categories;
+//   } catch (error) {
+//     console.error('Error fetching design categories:', error);
+//     throw new Error('Failed to fetch design categories');
+//   }
+// };
+
+// // Function to fetch all product types
+// export const getProductTypes = async () => {
+//   try {
+//     const records = await base(PRODUCTS_TABLE)
+//       .select({ fields: ['Name', 'Regular Price', 'Sale Price'] }) // Include Regular Price and Sale Price
+//       .all();
+
+//     const productTypes = records.map(record => ({
+//       id: record.id,
+//       name: record.fields['Name'],
+//       regularPrice: record.fields['Regular Price'] || null, // Ensure no undefined values
+//       salePrice: record.fields['Sale Price'] || null,
+//     }));
+
+//     return productTypes;
+//   } catch (error) {
+//     console.error('Error fetching product types:', error);
+//     throw new Error('Failed to fetch product types');
+//   }
+// };
+
   
 
-
+//FAULATED
 
 // import Airtable from 'airtable';
 // import { AppDataSource } from '../db';
