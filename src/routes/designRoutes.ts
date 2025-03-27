@@ -2,16 +2,16 @@
 
 import { FastifyInstance } from 'fastify';
 import { getDesignCategories } from '../services/airtableSync';
-import { sneakerController } from "../controllers/sneakerController";
+import { designController } from "../controllers/designController";
 
 
 export const designRoutes = async (fastify: FastifyInstance) => {
 
-  fastify.post("/designs", sneakerController.addSneaker);
-  fastify.get("/designs", sneakerController.getAllSneakers);
-  fastify.get("/designs/:id", sneakerController.getSneakerById);
-  fastify.put("/designs/:id", sneakerController.updateSneaker);
-  fastify.delete("/designs/:id", sneakerController.deleteSneaker);
+  fastify.post("/designs", designController.addDesign);
+  fastify.get("/designs", designController.getAllDesigns);
+  fastify.get("/designs/:id", designController.getDesignById);
+  fastify.put("/designs/:id", designController.updateDesign);
+  fastify.delete("/designs/:id", designController.deleteDesign);
 
   fastify.get('/design-category', async (request, reply) => {
     try {
