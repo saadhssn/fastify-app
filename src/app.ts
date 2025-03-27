@@ -21,38 +21,21 @@ const fastify = Fastify({
   logger: true,
 });
 
-// ** Register Swagger for API Documentation **
+// Register Swagger
 fastify.register(fastifySwagger, {
   openapi: {
     info: {
-      title: 'Fastify PostgreSQL API',
-      description: 'A Fastify API integrated with PostgreSQL and TypeORM',
-      version: '1.0.0',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-      },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-        },
-      },
+      title: "Sneaker API",
+      version: "1.0.0",
     },
   },
 });
 
-// ** Register Swagger UI for API Documentation UI **
 fastify.register(fastifySwaggerUI, {
-  routePrefix: '/documentation',
+  routePrefix: "/docs",
   staticCSP: true,
-  transformStaticCSP: (header) => header,
-  uiConfig: {
-    docExpansion: 'list',
-    deepLinking: false,
+  transformSpecification: (swaggerObject, req, reply) => {
+    return swaggerObject;
   },
 });
 
