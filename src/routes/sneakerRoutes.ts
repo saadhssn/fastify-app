@@ -2,8 +2,17 @@
 
 import { FastifyInstance } from 'fastify';
 import { getSneakerBySlug } from '../services/airtableSync';
+import { sneakerController } from "../controllers/sneakerController";
+
 
 export const sneakerRoutes = async (fastify: FastifyInstance) => {
+
+  fastify.post("/sneakers", sneakerController.addSneaker);
+  fastify.get("/sneakers", sneakerController.getAllSneakers);
+  fastify.get("/sneakers/:id", sneakerController.getSneakerById);
+  fastify.put("/sneakers/:id", sneakerController.updateSneaker);
+  fastify.delete("/sneakers/:id", sneakerController.deleteSneaker);
+
   fastify.get('/sneaker/:sneakerSlug', async (request, reply) => {
     try {
       const { sneakerSlug } = request.params as { sneakerSlug: string }; // Extract sneaker slug from the URL params
