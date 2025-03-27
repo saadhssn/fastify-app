@@ -9,6 +9,9 @@ import { Role } from "./entities/Role";
 import { Profile } from "./entities/Profile";
 // import { Product } from "./entities/Product";
 import dotenv from "dotenv";
+import { Sneakers } from "./entities/Sneakers";
+import { Products } from "./entities/Products";
+import { Designs } from "./entities/Designs";
 
 dotenv.config();
 
@@ -21,7 +24,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: true,
   logging: true,
-  entities: [User, Role, Profile],
+  entities: [User, Role, Profile, Sneakers, Products, Designs],
 });
 
 AppDataSource.initialize()
