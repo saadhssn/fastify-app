@@ -4,11 +4,11 @@ import { Designs } from "../entities/Designs"; // Fix import
 
 const designService = new DesignService();
 
-export const sneakerController = {
+export const designController = {
   async addDesign(req: FastifyRequest<{ Body: Partial<Designs> }>, reply: FastifyReply) {
     try {
       const newDesign = await designService.createDesign(req.body as Partial<Designs>);
-      reply.status(201).send({ message: "Design added successfully", sneaker: newDesign });
+      reply.status(201).send({ message: "Design added successfully", design: newDesign });
     } catch (error) {
       reply.status(400).send({ error: error instanceof Error ? error.message : "An unknown error occurred" });
     }
