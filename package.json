@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/app.ts",
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/db.ts -n",
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/db.ts",
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d src/db.ts",
+    "seed": "ts-node src/seeds/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,15 +30,17 @@
     "fastify": "^5.2.2",
     "fastify-env": "^2.1.1",
     "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.9",
     "pg": "^8.14.1",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.21"
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.14",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typeorm": "^0.3.21",
     "typescript": "^5.8.2"
   }
 }
