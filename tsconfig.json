@@ -5,7 +5,8 @@
     "target": "ES6", // Set the target ECMAScript version for the output (ES6 here for modern JavaScript features)
     "module": "commonjs", // Specifies the module code generation method (CommonJS used for Node.js projects)
     "moduleResolution": "node", // Specifies how TypeScript looks for modules, 'node' is common for Node.js environments
-    "outDir": "./dist", // Output directory for compiled JavaScript files (after transpiling TypeScript)
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
     "esModuleInterop": true, // Enables compatibility between CommonJS and ES Modules (useful for importing non-ESM modules)
     "skipLibCheck": true, // Skips type checking of declaration files to speed up the compilation process
     "strict": true, // Enables all strict type-checking options for better type safety
